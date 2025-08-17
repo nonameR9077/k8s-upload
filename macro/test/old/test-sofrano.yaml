@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: test-macro-sofrano
+  name: test-macro-sofrano
+  namespace: macro
+spec:
+  containers:
+  - image: selenium/standalone-chrome
+    name: test-macro-sofrano
+    command: ["bin/sh"]
+    args:
+      - "-c"
+      - |
+        set -e 
+        apt-get update && apt-get install -y python3 python3-pip 
+        pip install selenium webdriver-manager --break-system-package 
+        pip install opencv-python pytesseract --break-system-package 
+        apt-get install python3-pil tesseract-ocr libtesseract-dev tesseract-ocr-eng tesseract-ocr-script-latn -y
+        python3 /app/macro-sofrano.py 
+    securityContext:
+      runAsUser: 0
+    volumeMounts:
+      - name: macro-script-volume
+        mountPath: /app/macro-sofrano.py
+        subPath: macro-sofrano.py
+    resources: {}
+  volumes:
+    - name: macro-script-volume
+      configMap:
+        name: cm-sofrano
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}

@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: test-macro-combined
+  name: test-macro-combined
+  namespace: macro
+spec:
+  containers:
+  - image: selenium/standalone-chrome
+    name: test-macro-combined
+    command: ["bin/sh"]
+    args:
+      - "-c"
+      - |
+        set -e 
+        apt-get update && apt-get install -y python3 python3-pip 
+        pip3 install selenium webdriver-manager --break-system-package 
+        python3 /app/main.py 
+    securityContext:
+      runAsUser: 0
+    volumeMounts:
+      - name: macro-script-main
+        mountPath: /app/macro-combined.py
+        subPath: main.py
+      - name: macro-script-constants
+        mountPath: /app/macro-combined.py
+        subPath: constants.py
+      - name: macro-script-crawler
+        mountPath: /app/macro-combined.py
+        subPath: crawler.py
+      - name: macro-script-utils
+        mountPath: /app/macro-combined.py
+        subPath: utils.py
+      - name: macro-script-func-bananamall
+        mountPath: /app/macro-combined.py
+        subPath: bananamall.py
+      - name: macro-script-func-dingdong
+        mountPath: /app/macro-combined.py
+        subPath: dingdong.py
+      - name: macro-script-func-domoedoll
+        mountPath: /app/macro-combined.py
+        subPath: domoedoll.py
+      - name: macro-script-func-herotime
+        mountPath: /app/macro-combined.py
+        subPath: herotime.py
+      - name: macro-script-func-oname
+        mountPath: /app/macro-combined.py
+        subPath: oname.py
+      - name: macro-script-func-shoemarker
+        mountPath: /app/macro-combined.py
+        subPath: shoemarker.py
+      - name: macro-script-func-showdang
+        mountPath: /app/macro-combined.py
+        subPath: showdang.py
+      - name: macro-script-func-sofrano
+        mountPath: /app/macro-combined.py
+        subPath: sofrano.py
+    resources: {}
+  volumes:
+    - name: macro-script-main
+      configMap:
+        name: cm-macro-combined-main
+    - name: macro-script-constants
+      configMap:
+        name: cm-macro-combined-constants
+    - name: macro-script-crawler
+      configMap:
+        name: cm-macro-combined-crawler
+    - name: macro-script-utils
+      configMap:
+        name: cm-macro-combined-utils
+    - name: macro-script-func-bananamall
+      configMap:
+        name: cm-macro-combined-func-bananamall
+    - name: macro-script-func-dingdong
+      configMap:
+        name: cm-macro-combined-func-dingdong
+    - name: macro-script-func-domoedoll
+      configMap:
+        name: cm-macro-combined-func-domoedoll
+    - name: macro-script-func-herotime
+      configMap:
+        name: cm-macro-combined-func-herotime
+    - name: macro-script-func-oname
+      configMap:
+        name: cm-macro-combined-func-oname
+    - name: macro-script-func-shoemarker
+      configMap:
+        name: cm-macro-combined-func-shoemarker
+    - name: macro-script-func-showdang
+      configMap:
+        name: cm-macro-combined-func-showdang
+    - name: macro-script-func-sofrano
+      configMap:
+        name: cm-macro-combined-func-sofrano
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}

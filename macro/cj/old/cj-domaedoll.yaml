@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cj-domaedoll
+  namespace: macro
+spec:
+  schedule: "20 21 * * *" # 6:20 AM UTC+9
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 100
+      backoffLimit: 1
+      template:
+        spec:
+          containers:
+          - image: selenium/standalone-chrome
+            name: macro-domaedoll
+            command: ["bin/sh"]
+            args:
+              - "-c"
+              - |
+                sleep $((RANDOM % 90))
+                set -e 
+                apt-get update && apt-get install -y python3 python3-pip 
+                pip3 install selenium webdriver-manager --break-system-package 
+                python3 /app/macro-domaedoll.py 
+            securityContext:
+              runAsUser: 0
+            volumeMounts:
+              - name: macro-script-volume
+                mountPath: /app/macro-domaedoll.py
+                subPath: macro-domaedoll.py
+            resources: {}
+          volumes:
+            - name: macro-script-volume
+              configMap:
+                name: cm-domaedoll
+          dnsPolicy: ClusterFirst
+          restartPolicy: Never

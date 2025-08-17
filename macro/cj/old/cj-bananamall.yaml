@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cj-bananamall
+  namespace: macro
+spec:
+  schedule: "0 21 * * *" # 6:00 AM UTC+9
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 100
+      backoffLimit: 1
+      template:
+        spec:
+          containers:
+          - image: selenium/standalone-chrome
+            name: macro-bananamall
+            command: ["bin/sh"]
+            args:
+              - "-c"
+              - |
+                sleep $((RANDOM % 300))
+                set -e 
+                apt-get update && apt-get install -y python3 python3-pip 
+                pip3 install selenium webdriver-manager --break-system-package 
+                python3 /app/macro-bananamall.py 
+            securityContext:
+              runAsUser: 0
+            volumeMounts:
+              - name: macro-script-volume
+                mountPath: /app/macro-bananamall.py
+                subPath: macro-bananamall.py
+            resources: {}
+          volumes:
+            - name: macro-script-volume
+              configMap:
+                name: cm-bananamall
+          dnsPolicy: ClusterFirst
+          restartPolicy: Never
