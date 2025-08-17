@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: test-hito-update-checker
+  name: test-hito-update-checker
+  namespace: hito
+spec:
+  containers:
+  - image: selenium/standalone-chrome
+    name: test-hito-update-checker
+    command: ["bin/sh"]
+    args:
+      - "-c"
+      - |
+        set -e 
+        apt-get update && apt-get install -y python3 python3-pip 
+        pip3 install selenium webdriver-manager google-cloud-storage --break-system-package 
+        python3 /app/hito-update-checker.py 
+    securityContext:
+      runAsUser: 0
+    volumeMounts:
+      - name: macro-script-volume
+        mountPath: /app/hito-update-checker.py
+        subPath: hito-update-checker.py
+      - name: gcs-credentials
+        mountPath: /secrets/gcs
+        readOnly: true
+    resources: {}
+  volumes:
+    - name: macro-script-volume
+      configMap:
+        name: cm-hito-update-checker
+    - name: gcs-credentials
+      secret:
+        secretName: gcs-creds
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}

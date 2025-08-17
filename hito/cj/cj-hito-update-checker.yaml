@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cj-hito-update-checker
+  namespace: hito
+spec:
+  schedule: "0 13 * * *" # 10:00 PM UTC+9
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 100
+      backoffLimit: 1
+      template:
+        spec:
+          containers:
+          - image: selenium/standalone-chrome
+            name: hito-update-checker
+            command: ["bin/sh"]
+            args:
+              - "-c"
+              - |
+                set -e 
+                apt-get update && apt-get install -y python3 python3-pip 
+                pip3 install selenium webdriver-manager google-cloud-storage --break-system-package 
+                python3 /app/hito-update-checker.py 
+            securityContext:
+              runAsUser: 0
+            volumeMounts:
+              - name: hito-script-volume
+                mountPath: /app/hito-update-checker.py
+                subPath: hito-update-checker.py
+              - name: gcs-credentials
+                mountPath: /secrets/gcs
+                readOnly: true
+            resources: {}
+          volumes:
+            - name: hito-script-volume
+              configMap:
+                name: cm-hito-update-checker
+            - name: gcs-credentials
+              secret:
+                secretName: gcs-creds
+          dnsPolicy: ClusterFirst
+          restartPolicy: Never

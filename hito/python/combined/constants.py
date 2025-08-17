@@ -1,0 +1,17 @@
+HITO_URL = "https://hitomi.la"
+EHEN_URL = "https://e-hentai.org"
+BUCKET_NAME = "k8s-bucket-choi"
+HITO_FILE_NAME = "hito_list.json"
+EHEN_FILE_NAME = "e-hen_list.json"
+SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXX"
+
+
+KEY_TITLE = "title"
+KEY_TYPE = "type"
+KEY_LANG = "lang"
+KEY_DATE = "date"
+KEY_URL = "url"
+HITO_DATE_XPATH = "/html/body/div/div[5]/div[1]/div[2]/p"
+EHEN_DATE_XPATH = "/html/body/div[2]/div[2]/table/tbody/tr[2]/td[2]/div[3]/div[1]"
+EHEN_ERROR_XPATH = "/html/body/div[2]/div[2]/p"
+EHEN_RES_XPATH = "/html/body/div[2]/div[2]/div[2]/p"

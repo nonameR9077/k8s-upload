@@ -1,0 +1,61 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cj-hito-combined-update-checker
+  namespace: hito
+spec:
+  schedule: "0 13 * * *" # 10:00 PM UTC+9
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 100
+      backoffLimit: 1
+      template:
+        spec:
+          containers:
+          - image: seleniarm/standalone-chromium:latest
+            name: hito-combined-update-checker
+            command: ["bin/sh"]
+            args:
+              - "-c"
+              - |
+                set -e 
+                apt-get update && apt-get install -y python3 python3-pip 
+                pip3 install selenium requests google-cloud-storage --break-system-package 
+                python3 /app/main.py 
+            securityContext:
+              runAsUser: 0
+            volumeMounts:
+              - name: combined-hito-main
+                mountPath: /app/main.py
+                subPath: main.py
+              - name: combined-hito-constants
+                mountPath: /app/constants.py
+                subPath: constants.py
+              - name: combined-hito-crawler
+                mountPath: /app/crawler.py
+                subPath: crawler.py
+              - name: combined-hito-utils
+                mountPath: /app/utils.py
+                subPath: utils.py
+              - name: gcs-credentials
+                mountPath: /secrets/gcs
+                readOnly: true
+            resources: {}
+          volumes:
+            - name: combined-hito-main
+              configMap:
+                name: cm-combined-main
+            - name: combined-hito-constants
+              configMap:
+                name: cm-combined-constants
+            - name: combined-hito-crawler
+              configMap:
+                name: cm-combined-crawler
+            - name: combined-hito-utils
+              configMap:
+                name: cm-combined-utils
+            - name: gcs-credentials
+              secret:
+                secretName: gcs-creds
+          dnsPolicy: ClusterFirst
+          restartPolicy: Never
